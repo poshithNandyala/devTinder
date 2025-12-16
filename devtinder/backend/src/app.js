@@ -21,13 +21,21 @@
 // }).listen(3000);
 
 import express from 'express'
+import { userauth } from './middlewares/userauth.js'
 
 const app = express();
 const PORT = 3000;
 
 
-
-app.use("/home", (req, res) => {
+// app.use("/signin", (req, res, next) => {
+//     console.log("response 1")
+//     next();
+// }, (req, res, next) => {
+//     console.log("response 2");
+//     res.send("hi from signin")
+// }
+// )
+app.use("/home", userauth, (req, res) => {
     res.send("hi from home")
     console.log("home page is running")
 })
