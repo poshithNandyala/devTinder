@@ -22,7 +22,8 @@
 
 import express from 'express'
 import { userauth } from './middlewares/userauth.js'
-
+import { connectDB } from './config/mognoose.js';
+import User from './models/User.js';
 const app = express();
 const PORT = 3000;
 
@@ -35,19 +36,49 @@ const PORT = 3000;
 //     res.send("hi from signin")
 // }
 // )
-app.use("/home", userauth, (req, res) => {
-    res.send("hi from home")
-    console.log("home page is running")
+// app.use("/home", userauth, (req, res) => {
+//     res.send("hi from home")
+//     console.log("home page is running")
+// })
+
+// app.use("/about", (req, res) => {
+//     res.send("hi from about")
+//     console.log("about page is running")
+// })
+
+app.use(express.json());
+app.post("/signup", async (req,res) => {
+    const user = new User(req.body)
+    try {
+        await user.save();
+        res.send("User created successfully");
+    } catch (err) {
+        res.status(500).send("Error creating user");
+    }
+    
+})
+app.get("/byemail", async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+    res.send(user);
 })
 
-app.use("/about", (req, res) => {
-    res.send("hi from about")
-    console.log("about page is running")
+app.get("/feed", async (req, res) => {
+    const user = await User.find();
+    res.send(user);
 })
-app.use("/", (req, res) => {
+
+app.delete("/user", async (req, res) => {
+    await User.findByIdAndDelete(req.body.id);
+    res.send("User deleted successfully");
+})
+app.get("/", (req, res) => {
     res.send("Hellooooo World");
-    console.log("server is running");
 })
-app.listen(PORT, () => {
-    console.log(`server is running on ${PORT}`)
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`server is running on ${PORT}`)
+    })
+}).catch((err) => {
+    console.log("MongoDB connection failed");
+    console.error(err);
 })
