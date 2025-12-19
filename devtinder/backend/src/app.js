@@ -23,7 +23,9 @@
 import express from 'express'
 import { userauth } from './middlewares/userauth.js'
 import { connectDB } from './config/mognoose.js';
+import cookieParser from 'cookie-parser';
 import User from './models/User.js';
+import bcrypt from 'bcrypt';
 const app = express();
 const PORT = 3000;
 
@@ -45,18 +47,65 @@ const PORT = 3000;
 //     res.send("hi from about")
 //     console.log("about page is running")
 // })
-
+import validator from 'validator';
 app.use(express.json());
-app.post("/signup", async (req,res) => {
-    const user = new User(req.body)
+app.use(cookieParser());
+app.post("/signup", async (req, res) => {
+
     try {
+        console.log(req.body);
+        let { name, email, password, gender, age } = req.body;
+        if (!validator.isEmail(email)) {
+      
+            return res.status(400).send("Invalid email");
+        }
+        if (!validator.isStrongPassword(password)) {
+            return res.status(400).send("Weak password");
+        }
+        password = await bcrypt.hash(password, 10);
+        const user = new User({
+            name,
+            email,
+            password,
+            gender,
+            age,
+        });
         await user.save();
         res.send("User created successfully");
     } catch (err) {
         res.status(500).send("Error creating user");
     }
-    
+
 })
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).send("Invalid credentials");
+        }
+        const isPasswordValid = await user.comparepassword(password);
+        if (!isPasswordValid) {
+            return res.status(400).send("Invalid credentials");
+        }
+        const token = await user.getJWTToken();
+        res.cookie("token", token);
+        res.send("Login successful");
+    } catch (err) {
+        res.status(500).send("Error logging in");
+    }
+})
+
+app.get("/profile", userauth, async (req, res) => {
+    try {
+        const user = await req.user;
+        res.send(user);
+    } catch (err) {
+        res.status(500).send("Error fetching profile");
+    }
+})
+
 app.get("/byemail", async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     res.send(user);
