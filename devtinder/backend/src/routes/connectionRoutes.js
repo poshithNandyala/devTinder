@@ -32,11 +32,14 @@ router.post("/send/:status/:id", userauth, async (req, res) => {
 
 router.get("/getallrequests", userauth, async (req, res) => {
     try {
-        const requests = await Connection.find({ toUserId: req.user._id }).populate("fromUserId", "name age").select("fromUserId");
+        const requests = await Connection.find({ toId: req.user._id }).populate("fromId", "name age").select("fromId");
+        //  const updated = requests.map((req) => {
+         //     return req.fromId;
+         // });
         res.status(200).send(requests);
     }
     catch (err) {
-        res.status(500).send("something went wrong");
+        res.status(500).send("something went wrong" +err.message);
     }
 
 })
@@ -50,7 +53,7 @@ router.patch("/review/:status/:id", userauth, async (req, res) => {
             return res.status(400).send("Invalid status");
         }
 
-        const connection = await Connection.findById(id).populate("fromUserId", "name age gender");
+        const connection = await Connection.findById(id).populate("fromId", "name age gender");
         if (!connection || connection.status !== "request") {
             return res.status(404).send("Connection not found");
         }
@@ -58,21 +61,22 @@ router.patch("/review/:status/:id", userauth, async (req, res) => {
         connection.status = status;
         await connection.save();
 
-        res.status(200).send(`${req.user.name} ${status} the connection request from ${connection.fromUserId.name}`);
+        res.status(200).send(`${req.user.name} ${status} the connection request from ${connection.fromId.name}`);
     } catch (err) {
         console.error(err);
-        res.status(500).send("Something went wrong");
+        res.status(500).send("Something went wrong"  +err.message );
     }
 });
 
 router.get("/allconnections", userauth, async (req, res) => {
     try {
-        let connections = await Connection.find({ $or: [{ fromUserId: req.user._id }, { toUserId: req.user._id }] }).populate("fromUserId", "name age gender").populate("toUserId", "name age gender");
+        let connections = await Connection.find({ $or: [{ fromId: req.user._id  ,status:"accepted"}, { toId: req.user._id ,status:"accepted"}] }).populate("fromId", "name age gender").populate("toId", "name age gender");
+
         let newconnections = connections.map((connection) => {
-            if (connection.fromUserId._id.toString() === req.user._id.toString()) {
-                return connection.toUserId;
+            if (connection.fromId._id.toString() == req.user._id.toString()) {
+                return connection.toId;
             } else {
-                return connection.fromUserId;
+                return connection.fromId;
             }
         });
 
@@ -82,14 +86,14 @@ router.get("/allconnections", userauth, async (req, res) => {
     }
 })
 
-router.get("/feed", userauth, async (req, res) => {
-    try {
+// router.get("/feed", userauth, async (req, res) => {
+//     try {
 
-        res.status(200).send(user);
-    } catch (err) {
-        res.status(500).send("Something went wrong");
-    }
-})
+//         res.status(200).send(user);
+//     } catch (err) {
+//         res.status(500).send("Something went wrong");
+//     }
+// })
 
 router.get("/feed", userauth, async (req, res) => {
     try {
@@ -101,13 +105,13 @@ router.get("/feed", userauth, async (req, res) => {
         const skip = (page - 1) * limit;
 
         const connectionRequests = await Connection.find({
-            $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
-        }).select("fromUserId toUserId");
+            $or: [{ fromId: loggedInUser._id }, { toId: loggedInUser._id }],
+        }).select("fromId toId");
 
         const hideUsersFromFeed = new Set();
         connectionRequests.forEach(req => {
-            hideUsersFromFeed.add(req.fromUserId.toString());
-            hideUsersFromFeed.add(req.toUserId.toString());
+            hideUsersFromFeed.add(req.fromId.toString());
+            hideUsersFromFeed.add(req.toId.toString());
         });
 
         const users = await User.find({
