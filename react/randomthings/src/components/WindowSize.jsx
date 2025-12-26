@@ -9,7 +9,7 @@ const WindowSize = () => {
       setHeight(window.innerHeight)
     }
     window.addEventListener('resize', handleResize)
-    // return () => window.removeEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
   return (
     <div className="flex flex-col items-center justify-center">
