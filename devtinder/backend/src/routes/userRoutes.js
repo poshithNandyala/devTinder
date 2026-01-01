@@ -46,7 +46,7 @@ router.post("/login", async (req, res) => {
         }
         const token = await user.getJWTToken();
         res.cookie("token", token);
-        res.send("Login successful");
+        res.send(user);
     } catch (err) {
         res.status(500).send("Error logging in");
     }
@@ -62,20 +62,18 @@ router.post("/logout", async (req, res) => {
 })
 router.get("/profile/:id", userauth, async (req, res) => {
     try {
-        console.log(req.params)
-        const user = await User.findById(req.params.id).select("-password -email");
+        const user = await User.findById(req.params.id).select("-password");
         res.send(user);
     } catch (err) {
         res.status(500).send("Error fetching profile");
     }
 })
-router.get("/profile", userauth,  (req, res) => {
+router.get("/profile", userauth, (req, res) => {
     try {
-        console.log(req.user)
         const user = req?.user;
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).send("Error fetching profile"+err.message);
+        res.status(500).send("Error fetching profile" + err.message);
     }
 })
 
@@ -89,7 +87,7 @@ router.patch("/update", userauth, async (req, res) => {
         const user = await User.findByIdAndUpdate(req.user._id, { name, gender, age }, { new: true });
         res.send(user);
     } catch (err) {
-        res.status(500).send("Error updating profile" +err.message);
+        res.status(500).send("Error updating profile" + err.message);
     }
 })
 
