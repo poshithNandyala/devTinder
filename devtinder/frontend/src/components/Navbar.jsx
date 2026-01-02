@@ -4,11 +4,12 @@ import { useDispatch } from 'react-redux';
 import { logout } from '../utils/slices/userSlice';
 import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 function Navbar() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       const res = await axios.post(BASE_URL + '/user/logout', {}, {
@@ -16,6 +17,7 @@ function Navbar() {
       });
       console.log(res);
       dispatch(logout());
+      navigate('/login')
     } catch (error) {
       console.error(error);
     }
@@ -45,7 +47,7 @@ function Navbar() {
                 <span className="badge">New</span>
               </Link>
             </li>
-            <li><a>Settings</a></li>
+            <li><Link to="/settings">Settings</Link></li>
             <li><a onClick={handleLogout}>Logout</a></li>
           </ul>
         </div>
