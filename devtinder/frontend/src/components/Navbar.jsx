@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { logout } from '../config/slices/userSlice';
+import { logout } from '../utils/slices/userSlice';
 import axios from 'axios';
-import { BASE_URL } from '../config/constants';
+import { BASE_URL } from '../utils/constants';
 import { Link } from 'react-router';
 
 function Navbar() {
@@ -11,7 +11,7 @@ function Navbar() {
   const dispatch = useDispatch();
   const handleLogout = async () => {
     try {
-      const res= await axios.post(BASE_URL + '/user/logout',{}, {
+      const res = await axios.post(BASE_URL + '/user/logout', {}, {
         withCredentials: true,
       });
       console.log(res);

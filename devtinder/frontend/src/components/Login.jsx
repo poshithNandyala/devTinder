@@ -1,9 +1,9 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { login } from '../config/slices/userSlice'
+import { login } from '../utils/slices/userSlice'
 import { useNavigate } from 'react-router'
-import { BASE_URL } from '../config/constants'
+import { BASE_URL } from '../utils/constants'
 const Login = () => {
     const [email, setEmail] = useState('virat@gmail.com')
     const [password, setPassword] = useState('Virat@123')

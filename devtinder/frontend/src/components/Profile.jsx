@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { BASE_URL } from '../config/constants';
+import { BASE_URL } from '../utils/constants';
 import { Link } from 'react-router';
 
 function Profile() {
