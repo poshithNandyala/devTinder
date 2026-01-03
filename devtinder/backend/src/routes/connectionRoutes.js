@@ -12,6 +12,17 @@ router.post("/send/:status/:id", userauth, async (req, res) => {
         const allowedStatuses = ["request", "ignored"];
         if (!allowedStatuses.includes(status)) res.status(400).send("Invalid status");
         if (toUserId.toString() == fromUserId.toString()) return res.status(400).send("Cannot send connection request to yourself");
+
+        const existingConnection = await Connection.findOne({
+            $or: [
+                { fromId: fromUserId, toId: toUserId },
+                { fromId: toUserId, toId: fromUserId }
+            ]
+        });
+        if (existingConnection) {
+            return res.status(400).send("Connection Request Already Exists!!");
+        }
+
         const toUser = await User.findById(toUserId);
         if (!toUser) {
             res.status(404).send("User not found");
@@ -34,12 +45,12 @@ router.get("/getallrequests", userauth, async (req, res) => {
     try {
         const requests = await Connection.find({ toId: req.user._id }).populate("fromId", "name age").select("fromId");
         //  const updated = requests.map((req) => {
-         //     return req.fromId;
-         // });
+        //     return req.fromId;
+        // });
         res.status(200).send(requests);
     }
     catch (err) {
-        res.status(500).send("something went wrong" +err.message);
+        res.status(500).send("something went wrong" + err.message);
     }
 
 })
@@ -64,13 +75,13 @@ router.patch("/review/:status/:id", userauth, async (req, res) => {
         res.status(200).send(`${req.user.name} ${status} the connection request from ${connection.fromId.name}`);
     } catch (err) {
         console.error(err);
-        res.status(500).send("Something went wrong"  +err.message );
+        res.status(500).send("Something went wrong" + err.message);
     }
 });
 
 router.get("/allconnections", userauth, async (req, res) => {
     try {
-        let connections = await Connection.find({ $or: [{ fromId: req.user._id  ,status:"accepted"}, { toId: req.user._id ,status:"accepted"}] }).populate("fromId", "name age gender").populate("toId", "name age gender");
+        let connections = await Connection.find({ $or: [{ fromId: req.user._id, status: "accepted" }, { toId: req.user._id, status: "accepted" }] }).populate("fromId", "name age gender").populate("toId", "name age gender");
 
         let newconnections = connections.map((connection) => {
             if (connection.fromId._id.toString() == req.user._id.toString()) {
