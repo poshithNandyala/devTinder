@@ -26,7 +26,9 @@ router.post("/signup", async (req, res) => {
             age,
         });
         await user.save();
-        res.send("User created successfully");
+        const token = await user.getJWTToken();
+        res.cookie("token", token);
+        res.send(user);
     } catch (err) {
         res.status(500).send("Error creating user " + err.message);
     }
