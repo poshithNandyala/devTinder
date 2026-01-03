@@ -7,6 +7,8 @@ import Settings from "./components/Settings"
 import { Provider } from "react-redux"
 import appStore from "./utils/store"
 import EditProfile from "./components/EditProfile"
+import Connections from "./components/Connections"
+import Requests from "./components/Requests"
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
               <Route path='/feed' element={<Feed />} />
               <Route path='/settings' element={<Settings />} />
               <Route path='/edit-profile' element={<EditProfile />} />
+              <Route path="/connections" element={<Connections />} />
+              <Route path="/requests" element={<Requests />} />
             </Route>
           </Routes>
         </BrowserRouter>

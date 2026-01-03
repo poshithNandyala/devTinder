@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { login } from "../utils/slices/userSlice";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 function Body() {
   const user = useSelector(state => state.user);
@@ -25,6 +25,8 @@ function Body() {
         dispatch(login(res.data));
       } catch (error) {
         if (error?.response?.status === 401) {
+          toast.dismiss()
+          toast.error("Please Login First")
           navigate("/login");
         }
       } finally {
