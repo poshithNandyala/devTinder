@@ -5,11 +5,19 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import userauth from "../middlewares/userauth.js";
+import upload from "../middlewares/upload.js";
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs";
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", upload.single("photo"), async (req, res) => {
     try {
-        console.log(req.body);
-        let { name, email, password, gender, age } = req.body;
+        let { name, email, password, gender, age, skills, college, company, about, githubId, linkedinId } = req.body;
+
+        // Handle skills if it comes as a comma-separated string
+        if (skills && typeof skills === 'string') {
+            skills = skills.split(',').map(skill => skill.trim());
+        }
+
         if (!name || !email || !password || !gender || !age) return res.status(400).send("provide name, email, password, gender, age")
         if (!validator.isEmail(email)) {
             return res.status(400).send("Invalid email");
@@ -17,6 +25,14 @@ router.post("/signup", async (req, res) => {
         if (!validator.isStrongPassword(password)) {
             return res.status(400).send("Weak password");
         }
+
+        let photoUrl;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            photoUrl = result.secure_url;
+            // fs.unlinkSync(req.file.path); // Clean up local file
+        }
+
         password = await bcrypt.hash(password, 10);
         const user = new User({
             name,
@@ -24,6 +40,13 @@ router.post("/signup", async (req, res) => {
             password,
             gender,
             age,
+            skills,
+            college,
+            company,
+            about,
+            githubId,
+            linkedinId,
+            photoUrl
         });
         await user.save();
         const token = await user.getJWTToken();
@@ -81,12 +104,27 @@ router.get("/profile", userauth, (req, res) => {
 
 
 
-router.patch("/update", userauth, async (req, res) => {
+router.patch("/update", userauth, upload.single("photo"), async (req, res) => {
     try {
-        const editableFields = ["name", "gender", "age"];
-        const { name, gender, age } = req.body;
-        // console.log(name + " "+ gender +" "+age)
-        const user = await User.findByIdAndUpdate(req.user._id, { name, gender, age }, { new: true });
+        const { name, gender, age, skills, college, company, about, githubId, linkedinId } = req.body;
+
+        const updates = { name, gender, age, skills, college, company, about, githubId, linkedinId };
+
+        // Handle skills if it comes as a comma-separated string
+        if (skills && typeof skills === 'string') {
+            updates.skills = skills.split(',').map(skill => skill.trim());
+        }
+
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            updates.photoUrl = result.secure_url;
+            // fs.unlinkSync(req.file.path);
+        }
+
+        // Filter out undefined fields to avoid overwriting with null/undefined if not sent
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
         res.send(user);
     } catch (err) {
         res.status(500).send("Error updating profile" + err.message);

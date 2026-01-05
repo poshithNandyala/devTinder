@@ -115,6 +115,9 @@ router.get("/feed", userauth, async (req, res) => {
         limit = Math.min(limit, 50);
         const skip = (page - 1) * limit;
 
+        // Filters
+        const { skills, college } = req.query;
+
         const connectionRequests = await Connection.find({
             $or: [{ fromId: loggedInUser._id }, { toId: loggedInUser._id }],
         }).select("fromId toId");
@@ -125,10 +128,21 @@ router.get("/feed", userauth, async (req, res) => {
             hideUsersFromFeed.add(req.toId.toString());
         });
 
-        const users = await User.find({
+        const query = {
             _id: { $nin: Array.from(hideUsersFromFeed), $ne: loggedInUser._id },
-        })
-            .select("name age gender")
+        };
+
+        if (skills) {
+            const skillsArray = skills.split(",").map(skill => skill.trim());
+            query.skills = { $in: skillsArray }; // Users having at least one of the skills
+        }
+
+        if (college) {
+            query.college = { $regex: college, $options: "i" }; // Case-insensitive partial match
+        }
+
+        const users = await User.find(query)
+            .select("name age gender photoUrl about skills college company githubId linkedinId")
             .skip(skip)
             .limit(limit);
 
