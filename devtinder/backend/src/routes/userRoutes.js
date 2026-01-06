@@ -8,7 +8,6 @@ import userauth from "../middlewares/userauth.js";
 import upload from "../middlewares/upload.js";
 import cloudinary from "../utils/cloudinary.js";
 import fs from "fs";
-
 router.post("/signup", upload.single("photo"), async (req, res) => {
     try {
         let { name, email, password, gender, age, skills, college, company, about, githubId, linkedinId } = req.body;
@@ -67,7 +66,7 @@ router.post("/login", async (req, res) => {
         }
         const isPasswordValid = await user.comparepassword(password);
         if (!isPasswordValid) {
-            return res.status(400).send("Invalid credentials");
+            return res.status(400).send("Invalid credentials 1");
         }
         const token = await user.getJWTToken();
         res.cookie("token", token);

@@ -1,6 +1,6 @@
-import express from 'express'
 import dotenv from "dotenv";
 dotenv.config();
+import express from 'express'
 import { connectDB } from './config/mognoose.js';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoutes.js';
