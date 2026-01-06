@@ -8,11 +8,11 @@ import userauth from "../middlewares/userauth.js";
 import upload from "../middlewares/upload.js";
 import cloudinary from "../utils/cloudinary.js";
 import fs from "fs";
+
 router.post("/signup", upload.single("photo"), async (req, res) => {
     try {
         let { name, email, password, gender, age, skills, college, company, about, githubId, linkedinId } = req.body;
 
-        // Handle skills if it comes as a comma-separated string
         if (skills && typeof skills === 'string') {
             skills = skills.split(',').map(skill => skill.trim());
         }
@@ -29,7 +29,9 @@ router.post("/signup", upload.single("photo"), async (req, res) => {
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             photoUrl = result.secure_url;
-            fs.unlinkSync(req.file.path); // Clean up local file
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error("File cleanup failed:", err);
+            });
         }
 
         password = await bcrypt.hash(password, 10);
@@ -48,7 +50,7 @@ router.post("/signup", upload.single("photo"), async (req, res) => {
             photoUrl
         });
         await user.save();
-        const token = await user.getJWTToken();
+        const token = user.getJWTToken();
         res.cookie("token", token);
         res.send(user);
     } catch (err) {
@@ -68,7 +70,7 @@ router.post("/login", async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).send("Invalid credentials 1");
         }
-        const token = await user.getJWTToken();
+        const token = user.getJWTToken();
         res.cookie("token", token);
         res.send(user);
     } catch (err) {
@@ -107,14 +109,14 @@ router.patch("/update", userauth, upload.single("photo"), async (req, res) => {
     try {
         let { name, gender, age, skills, college, company, about, githubId, linkedinId, interestedIn } = req.body;
 
-        // Handle interestedIn if it comes as a comma-separated string
+
         if (interestedIn && typeof interestedIn === 'string') {
             interestedIn = interestedIn.split(',').map(i => i.trim()).filter(i => ['male', 'female', 'other'].includes(i));
         }
 
         const updates = { name, gender, age, skills, college, company, about, githubId, linkedinId, interestedIn };
 
-        // Handle skills if it comes as a comma-separated string
+
         if (skills && typeof skills === 'string') {
             updates.skills = skills.split(',').map(skill => skill.trim());
         }
@@ -122,10 +124,13 @@ router.patch("/update", userauth, upload.single("photo"), async (req, res) => {
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             updates.photoUrl = result.secure_url;
-            fs.unlinkSync(req.file.path);
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error("File cleanup failed:", err);
+            });
+
         }
 
-        // Filter out undefined fields to avoid overwriting with null/undefined if not sent
+
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
         const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });

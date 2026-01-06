@@ -99,8 +99,8 @@ router.get("/allconnections", userauth, async (req, res) => {
 
 // router.get("/feed", userauth, async (req, res) => {
 //     try {
-
-//         res.status(200).send(user);
+//         const users = await User.find({});
+//         res.status(200).send(users);
 //     } catch (err) {
 //         res.status(500).send("Something went wrong");
 //     }
