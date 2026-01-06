@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { login } from '../utils/slices/userSlice'
@@ -27,6 +27,11 @@ export default function AuthForm() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
+    const photoPreview = useMemo(() => {
+        if (photo) return URL.createObjectURL(photo)
+        return null
+    }, [photo])
+
     const resetForm = () => {
         setName('')
         setAge('')
@@ -38,6 +43,17 @@ export default function AuthForm() {
         setLinkedinId('')
         setPhoto(null)
         setShowMore(false)
+    }
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error('Photo must be less than 5MB')
+                return
+            }
+            setPhoto(file)
+        }
     }
 
     async function handleSubmit(e) {
@@ -86,8 +102,14 @@ export default function AuthForm() {
             }
 
             dispatch(login(res.data))
-            toast.success(isLogin ? `Welcome back, ${res.data.name}` : `Welcome, ${res.data.name}`)
-            navigate('/feed')
+            
+            if (isLogin) {
+                toast.success(`Welcome back, ${res.data.name}`)
+                navigate('/feed')
+            } else {
+                toast.success(`Welcome, ${res.data.name}`)
+                navigate('/preferences')
+            }
         } catch (error) {
             const serverMsg = error?.response?.data?.message || error?.response?.data
             toast.error(typeof serverMsg === 'string' ? serverMsg : 'Something went wrong')
@@ -135,6 +157,46 @@ export default function AuthForm() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {!isLogin && (
                             <>
+                                {/* Modern Photo Upload */}
+                                <div className="flex justify-center mb-6">
+                                    <label className="relative cursor-pointer group">
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handlePhotoChange}
+                                        />
+                                        <div className={`w-24 h-24 rounded-full overflow-hidden border-2 border-dashed transition-all ${
+                                            photoPreview 
+                                                ? 'border-rose-500' 
+                                                : 'border-stone-600 group-hover:border-rose-500/50'
+                                        }`}>
+                                            {photoPreview ? (
+                                                <img 
+                                                    src={photoPreview} 
+                                                    alt="Preview" 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-stone-800/50 flex flex-col items-center justify-center text-stone-500 group-hover:text-rose-500/70 transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    <span className="text-xs">Add Photo</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {photoPreview && (
+                                            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-rose-600 rounded-full flex items-center justify-center shadow-lg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </label>
+                                </div>
+
                                 <input
                                     type="text"
                                     placeholder="Full Name"
@@ -219,15 +281,6 @@ export default function AuthForm() {
                                                 className={inputClass}
                                                 value={linkedinId}
                                                 onChange={(e) => setLinkedinId(e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-stone-500 mb-2 block">Profile Photo</label>
-                                            <input
-                                                type="file"
-                                                className="w-full text-sm text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-800 file:text-stone-300 hover:file:bg-stone-700"
-                                                accept="image/*"
-                                                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
                                             />
                                         </div>
                                     </div>

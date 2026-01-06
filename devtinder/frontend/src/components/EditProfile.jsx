@@ -22,8 +22,17 @@ function EditProfile() {
     githubId: user?.githubId || '',
     linkedinId: user?.linkedinId || ''
   })
+  const [interestedIn, setInterestedIn] = useState(user?.interestedIn || [])
   const [photo, setPhoto] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  const toggleInterest = (value) => {
+    setInterestedIn(prev => 
+      prev.includes(value) 
+        ? prev.filter(v => v !== value)
+        : [...prev, value]
+    )
+  }
 
   const photoPreview = useMemo(() => {
     if (photo) return URL.createObjectURL(photo)
@@ -69,6 +78,7 @@ function EditProfile() {
         }
       })
       if (photo) data.append('photo', photo)
+      if (interestedIn.length > 0) data.append('interestedIn', interestedIn.join(','))
 
       const res = await axios.patch(BASE_URL + "/user/update", data, { withCredentials: true })
       dispatch(login(res.data))
@@ -248,6 +258,31 @@ function EditProfile() {
                   onChange={handleChange}
                   placeholder="username"
                 />
+              </div>
+            </div>
+
+            {/* Interested In */}
+            <div className="mb-6">
+              <label className={labelClass}>Interested In</label>
+              <div className="flex gap-2">
+                {[
+                  { value: 'male', label: 'Men' },
+                  { value: 'female', label: 'Women' },
+                  { value: 'other', label: 'Everyone' }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => toggleInterest(option.value)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm transition-all ${
+                      interestedIn.includes(option.value)
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-stone-800/50 text-stone-400 border border-stone-700/50 hover:border-rose-500/50'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
             </div>
 

@@ -9,7 +9,7 @@ import { login } from "../utils/slices/userSlice"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-const PUBLIC_ROUTES = ['/login', '/signup']
+const PUBLIC_ROUTES = ['/login', '/signup', '/preferences']
 
 function Body() {
   const user = useSelector(state => state.user)

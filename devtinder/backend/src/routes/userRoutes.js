@@ -29,7 +29,7 @@ router.post("/signup", upload.single("photo"), async (req, res) => {
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             photoUrl = result.secure_url;
-            // fs.unlinkSync(req.file.path); // Clean up local file
+            fs.unlinkSync(req.file.path); // Clean up local file
         }
 
         password = await bcrypt.hash(password, 10);
@@ -105,9 +105,14 @@ router.get("/profile", userauth, (req, res) => {
 
 router.patch("/update", userauth, upload.single("photo"), async (req, res) => {
     try {
-        const { name, gender, age, skills, college, company, about, githubId, linkedinId } = req.body;
+        let { name, gender, age, skills, college, company, about, githubId, linkedinId, interestedIn } = req.body;
 
-        const updates = { name, gender, age, skills, college, company, about, githubId, linkedinId };
+        // Handle interestedIn if it comes as a comma-separated string
+        if (interestedIn && typeof interestedIn === 'string') {
+            interestedIn = interestedIn.split(',').map(i => i.trim()).filter(i => ['male', 'female', 'other'].includes(i));
+        }
+
+        const updates = { name, gender, age, skills, college, company, about, githubId, linkedinId, interestedIn };
 
         // Handle skills if it comes as a comma-separated string
         if (skills && typeof skills === 'string') {
@@ -117,7 +122,7 @@ router.patch("/update", userauth, upload.single("photo"), async (req, res) => {
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             updates.photoUrl = result.secure_url;
-            // fs.unlinkSync(req.file.path);
+            fs.unlinkSync(req.file.path);
         }
 
         // Filter out undefined fields to avoid overwriting with null/undefined if not sent

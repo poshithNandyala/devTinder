@@ -132,6 +132,11 @@ router.get("/feed", userauth, async (req, res) => {
             _id: { $nin: Array.from(hideUsersFromFeed), $ne: loggedInUser._id },
         };
 
+        // Filter by user's gender preference (interestedIn)
+        if (loggedInUser.interestedIn && loggedInUser.interestedIn.length > 0) {
+            query.gender = { $in: loggedInUser.interestedIn };
+        }
+
         if (skills) {
             const skillsArray = skills.split(",").map(skill => skill.trim());
             query.skills = { $in: skillsArray }; // Users having at least one of the skills

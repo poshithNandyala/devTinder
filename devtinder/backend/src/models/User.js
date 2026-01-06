@@ -61,6 +61,11 @@ const UserSchema = new Schema(
         },
         company: {
             type: String,
+        },
+        interestedIn: {
+            type: [String],
+            enum: ['male', 'female', 'other'],
+            default: []
         }
     },
     {
