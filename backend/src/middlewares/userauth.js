@@ -8,7 +8,7 @@ export const userauth = async (req, res, next) => {
             return res.status(401).send("Unauthorized: No token provided");
         }
 
-        const decoded = jwt.verify(token, "poshith");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id);
         if (!user) {
             return res.status(401).send("Unauthorized: User not found");

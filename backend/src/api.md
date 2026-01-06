@@ -11,5 +11,5 @@ get info
 send connection/ignore connection
 accept connection/reject connection
 get requests
-get call onnections 
+get call connections 
 get feed
