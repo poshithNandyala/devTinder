@@ -49,3 +49,9 @@ coverage/
 # Uploads (multer)
 # =====================
 uploads/
+
+# =====================
+# Learning/Documentation
+# =====================
+important learnings/
+uploads/
