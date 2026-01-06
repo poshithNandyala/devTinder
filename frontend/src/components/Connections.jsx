@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react'
 import { BASE_URL } from '../utils/constants'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import { setConnection } from '../utils/slices/connectionSlice'
+import { setConnection, removeOneConnection } from '../utils/slices/connectionSlice'
 
 function Connections() {
   const dispatch = useDispatch()
   const connections = useSelector((state) => state.connection)
   const [loading, setLoading] = useState(true)
+  const [removingId, setRemovingId] = useState(null)
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -25,6 +26,20 @@ function Connections() {
 
     fetchConnections()
   }, [dispatch])
+
+  const handleRemoveConnection = async (connectionId) => {
+    setRemovingId(connectionId)
+    try {
+      await axios.delete(`${BASE_URL}/connection/remove/${connectionId}`, { withCredentials: true })
+      dispatch(removeOneConnection(connectionId))
+      toast.success('Connection removed')
+    } catch (error) {
+      toast.error('Failed to remove connection')
+      console.error(error)
+    } finally {
+      setRemovingId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -60,7 +75,7 @@ function Connections() {
       <div className="max-w-2xl mx-auto space-y-3">
         {connections.map((user) => (
           <div
-            key={user._id}
+            key={user.connectionId}
             className="bg-stone-900/30 backdrop-blur-sm border border-stone-800/30 rounded-xl p-4 hover:border-rose-600/30 transition-all"
           >
             <div className="flex items-center gap-4">
@@ -86,7 +101,7 @@ function Connections() {
                   </div>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 {user.githubId && (
                   <a
                     href={`https://github.com/${user.githubId}`}
@@ -111,6 +126,20 @@ function Connections() {
                     </svg>
                   </a>
                 )}
+                <button
+                  onClick={() => handleRemoveConnection(user.connectionId)}
+                  disabled={removingId === user.connectionId}
+                  className="w-8 h-8 rounded-full bg-stone-800/50 flex items-center justify-center text-stone-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                  title="Remove connection"
+                >
+                  {removingId === user.connectionId ? (
+                    <div className="w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
           </div>

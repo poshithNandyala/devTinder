@@ -79,16 +79,77 @@ router.patch("/review/:status/:id", userauth, async (req, res) => {
     }
 });
 
+router.get("/sentrequests", userauth, async (req, res) => {
+    try {
+        const sentRequests = await Connection.find({ 
+            fromId: req.user._id 
+        }).populate("toId", "name age gender photoUrl about skills college company");
+
+        const categorized = {
+            pending: [],
+            accepted: [],
+            rejected: [],
+            ignored: []
+        };
+
+        sentRequests.forEach((connection) => {
+            const requestData = {
+                _id: connection._id,
+                user: connection.toId,
+                status: connection.status,
+                createdAt: connection.createdAt
+            };
+
+            if (connection.status === "request") {
+                categorized.pending.push(requestData);
+            } else if (connection.status === "accepted") {
+                categorized.accepted.push(requestData);
+            } else if (connection.status === "rejected") {
+                categorized.rejected.push(requestData);
+            } else if (connection.status === "ignored") {
+                categorized.ignored.push(requestData);
+            }
+        });
+
+        res.status(200).json(categorized);
+    } catch (err) {
+        res.status(500).send("Something went wrong: " + err.message);
+    }
+});
+
+router.delete("/remove/:id", userauth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const connection = await Connection.findOne({
+            _id: id,
+            $or: [{ fromId: userId }, { toId: userId }]
+        });
+
+        if (!connection) {
+            return res.status(404).json({ message: "Connection not found" });
+        }
+
+        await Connection.findByIdAndDelete(id);
+        res.status(200).json({ message: "Connection removed successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Something went wrong: " + err.message });
+    }
+});
+
 router.get("/allconnections", userauth, async (req, res) => {
     try {
         let connections = await Connection.find({ $or: [{ fromId: req.user._id, status: "accepted" }, { toId: req.user._id, status: "accepted" }] }).populate("fromId", "name age gender photoUrl about skills college company githubId linkedinId").populate("toId", "name age gender photoUrl about skills college company githubId linkedinId");
 
         let newconnections = connections.map((connection) => {
-            if (connection.fromId._id.toString() == req.user._id.toString()) {
-                return connection.toId;
-            } else {
-                return connection.fromId;
-            }
+            const user = connection.fromId._id.toString() == req.user._id.toString() 
+                ? connection.toId 
+                : connection.fromId;
+            return {
+                connectionId: connection._id,
+                ...user.toObject()
+            };
         });
 
         res.status(200).send(newconnections);

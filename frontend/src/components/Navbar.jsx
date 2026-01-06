@@ -72,6 +72,12 @@ function Navbar() {
               >
                 Requests
               </Link>
+              <Link 
+                to="/sent-requests" 
+                className={`px-4 py-2 text-sm tracking-wide transition-colors ${isActive('/sent-requests') ? 'text-rose-500' : 'text-stone-400 hover:text-stone-200'}`}
+              >
+                Sent
+              </Link>
             </div>
 
             {/* Profile Dropdown */}
@@ -121,6 +127,13 @@ function Navbar() {
                     className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Requests
+                  </Link>
+                  <Link 
+                    to="/sent-requests" 
+                    onClick={() => setDropdownOpen(false)}
+                    className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
+                  >
+                    Sent Requests
                   </Link>
                   <Link 
                     to="/settings" 

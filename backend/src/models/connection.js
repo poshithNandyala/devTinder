@@ -14,7 +14,7 @@ const connectionSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-})
+}, { timestamps: true })
 
 const Connection = mongoose.model("Connection", connectionSchema);
 
