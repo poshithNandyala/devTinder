@@ -1,18 +1,16 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { login } from '../utils/slices/userSlice'
 import { useNavigate } from 'react-router'
 import { BASE_URL } from '../utils/constants'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { toast } from 'react-toastify'
 
 export default function AuthForm() {
     const [isLogin, setIsLogin] = useState(true)
 
-    const [email, setEmail] = useState('virat@gmail.com')
-    const [password, setPassword] = useState('Virat@123')
-    // signup-only fields
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [name, setName] = useState('')
     const [gender, setGender] = useState('male')
     const [age, setAge] = useState('')
@@ -23,16 +21,48 @@ export default function AuthForm() {
     const [githubId, setGithubId] = useState('')
     const [linkedinId, setLinkedinId] = useState('')
     const [photo, setPhoto] = useState(null)
+    const [showMore, setShowMore] = useState(false)
 
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
+    const resetForm = () => {
+        setName('')
+        setAge('')
+        setAbout('')
+        setSkills('')
+        setCollege('')
+        setCompany('')
+        setGithubId('')
+        setLinkedinId('')
+        setPhoto(null)
+        setShowMore(false)
+    }
+
     async function handleSubmit(e) {
         e.preventDefault()
+
+        if (!email || !password) {
+            toast.error('Email and password are required')
+            return
+        }
+
+        if (!isLogin) {
+            if (!name.trim()) {
+                toast.error('Name is required')
+                return
+            }
+            const ageNum = Number(age)
+            if (!age || ageNum < 18 || ageNum > 100) {
+                toast.error('Age must be between 18 and 100')
+                return
+            }
+        }
+
         setLoading(true)
         try {
-            let res;
+            let res
             const endpoint = isLogin ? '/user/login' : '/user/signup'
 
             if (isLogin) {
@@ -54,159 +84,195 @@ export default function AuthForm() {
 
                 res = await axios.post(BASE_URL + endpoint, formData, { withCredentials: true })
             }
-            // assume API returns user object / token in res.data
+
             dispatch(login(res.data))
-            toast.success(isLogin ? 'Login successful' : 'Signup successful — welcome!')
+            toast.success(isLogin ? `Welcome back, ${res.data.name}` : `Welcome, ${res.data.name}`)
             navigate('/feed')
         } catch (error) {
             const serverMsg = error?.response?.data?.message || error?.response?.data
-            toast.error(serverMsg || 'Something went wrong')
-            console.error(error)
+            toast.error(typeof serverMsg === 'string' ? serverMsg : 'Something went wrong')
         } finally {
             setLoading(false)
         }
     }
 
+    const inputClass = "w-full px-4 py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-stone-100 placeholder-stone-500 focus:outline-none focus:border-rose-500/50 transition-colors"
+    const selectClass = "w-full px-4 py-3 bg-stone-800/50 border border-stone-700/50 rounded-lg text-stone-300 focus:outline-none focus:border-rose-500/50 transition-colors"
+
     return (
-        <div className="flex justify-center items-center min-h-screen p-4">
-            <form onSubmit={handleSubmit} className="w-full max-w-md">
-                <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-full border p-6">
-                    <legend className="fieldset-legend text-lg font-semibold">{isLogin ? 'Login' : 'Signup'}</legend>
-                    {!isLogin && (
-                        <>
-                            <label className="label mt-2">Full name</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="Your full name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required={!isLogin}
-                                autoComplete="name"
-                            />
-                            <label className="label mt-2">Gender</label>
-                            <select className="select w-full" value={gender} onChange={(e) => setGender(e.target.value)}>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <label className="label mt-2">Age</label>
-                            <input
-                                type="number"
-                                className="input"
-                                placeholder="Age"
-                                value={age}
-                                onChange={(e) => setAge(e.target.value)}
-                                min={18}
-                                max={100}
-                                required={!isLogin}
-                            />
+        <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                {/* Logo */}
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl font-light tracking-widest">
+                        dev<span className="text-rose-500 font-normal">Tinder</span>
+                    </h1>
+                    <p className="text-stone-500 text-sm mt-3 tracking-wide">
+                        Where developers connect
+                    </p>
+                </div>
 
-                            <label className="label mt-2">About</label>
-                            <textarea
-                                className="textarea"
-                                placeholder="Tell us about yourself"
-                                value={about}
-                                onChange={(e) => setAbout(e.target.value)}
-                            />
+                {/* Card */}
+                <div className="bg-stone-900/30 backdrop-blur-sm border border-stone-800/30 rounded-2xl p-8">
+                    {/* Toggle */}
+                    <div className="flex justify-center gap-8 mb-8">
+                        <button
+                            type="button"
+                            onClick={() => { setIsLogin(true); resetForm() }}
+                            className={`text-sm tracking-wider pb-2 border-b-2 transition-colors ${isLogin ? 'text-rose-500 border-rose-500' : 'text-stone-500 border-transparent hover:text-stone-400'}`}
+                        >
+                            Sign In
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setIsLogin(false); resetForm() }}
+                            className={`text-sm tracking-wider pb-2 border-b-2 transition-colors ${!isLogin ? 'text-rose-500 border-rose-500' : 'text-stone-500 border-transparent hover:text-stone-400'}`}
+                        >
+                            Sign Up
+                        </button>
+                    </div>
 
-                            <label className="label mt-2">Skills (comma separated)</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="e.g. React, Node.js, Python"
-                                value={skills}
-                                onChange={(e) => setSkills(e.target.value)}
-                            />
-
-                            <label className="label mt-2">College</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="Your college"
-                                value={college}
-                                onChange={(e) => setCollege(e.target.value)}
-                            />
-
-                            <label className="label mt-2">Company</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="Your company"
-                                value={company}
-                                onChange={(e) => setCompany(e.target.value)}
-                            />
-
-                            <label className="label mt-2">GitHub ID</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="Your GitHub username"
-                                value={githubId}
-                                onChange={(e) => setGithubId(e.target.value)}
-                            />
-
-                            <label className="label mt-2">LinkedIn ID</label>
-                            <input
-                                type="text"
-                                className="input"
-                                placeholder="Your LinkedIn username"
-                                value={linkedinId}
-                                onChange={(e) => setLinkedinId(e.target.value)}
-                            />
-
-                            <label className="label mt-2">Profile Photo</label>
-                            <input
-                                type="file"
-                                className="file-input"
-                                accept="image/*"
-                                onChange={(e) => setPhoto(e.target.files[0])}
-                            />
-                        </>
-                    )}
-                    <label className="label mt-2">Email</label>
-                    <input
-                        type="email"
-                        className="input"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        autoComplete="email"
-                    />
-                    <label className="label mt-2">Password</label>
-                    <input
-                        type="password"
-                        className="input"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        autoComplete={isLogin ? 'current-password' : 'new-password'}
-                    />
-                    <button type="submit" className="btn btn-neutral mt-4 w-full" disabled={loading}>
-                        {loading ? (isLogin ? 'Logging in...' : 'Signing up...') : (isLogin ? 'Login' : 'Signup')}
-                    </button>
-                    <p className="mt-4 text-sm text-center">
-                        {isLogin ? (
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {!isLogin && (
                             <>
-                                New user?{' '}
-                                <button type="button" className="link" onClick={() => setIsLogin(false)}>
-                                    Signup
+                                <input
+                                    type="text"
+                                    placeholder="Full Name"
+                                    className={inputClass}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <select 
+                                        className={selectClass}
+                                        value={gender} 
+                                        onChange={(e) => setGender(e.target.value)}
+                                    >
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <input
+                                        type="number"
+                                        placeholder="Age"
+                                        className={inputClass}
+                                        value={age}
+                                        onChange={(e) => setAge(e.target.value)}
+                                        min={18}
+                                        max={100}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMore(!showMore)}
+                                    className="text-xs text-stone-500 hover:text-rose-500 transition-colors tracking-wider"
+                                >
+                                    {showMore ? '− Less options' : '+ More options'}
                                 </button>
-                            </>
-                        ) : (
-                            <>
-                                Existing user?{' '}
-                                <button type="button" className="link" onClick={() => setIsLogin(true)}>
-                                    Login
-                                </button>
+
+                                {showMore && (
+                                    <div className="space-y-4 pt-2">
+                                        <textarea
+                                            placeholder="About yourself..."
+                                            className={`${inputClass} h-20 resize-none`}
+                                            value={about}
+                                            onChange={(e) => setAbout(e.target.value)}
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Skills (comma separated)"
+                                            className={inputClass}
+                                            value={skills}
+                                            onChange={(e) => setSkills(e.target.value)}
+                                        />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <input
+                                                type="text"
+                                                placeholder="College"
+                                                className={inputClass}
+                                                value={college}
+                                                onChange={(e) => setCollege(e.target.value)}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="Company"
+                                                className={inputClass}
+                                                value={company}
+                                                onChange={(e) => setCompany(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <input
+                                                type="text"
+                                                placeholder="GitHub username"
+                                                className={inputClass}
+                                                value={githubId}
+                                                onChange={(e) => setGithubId(e.target.value)}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="LinkedIn username"
+                                                className={inputClass}
+                                                value={linkedinId}
+                                                onChange={(e) => setLinkedinId(e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-stone-500 mb-2 block">Profile Photo</label>
+                                            <input
+                                                type="file"
+                                                className="w-full text-sm text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-800 file:text-stone-300 hover:file:bg-stone-700"
+                                                accept="image/*"
+                                                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
-                    </p>
-                </fieldset>
-            </form>
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            className={inputClass}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoComplete="email"
+                        />
+
+                        <div>
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                className={inputClass}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                            />
+                            {!isLogin && (
+                                <p className="text-xs text-stone-600 mt-2">
+                                    Min 8 chars with uppercase, lowercase, number & symbol
+                                </p>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-lg tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            disabled={loading}
+                        >
+                            {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                            {loading ? '' : (isLogin ? 'Sign In' : 'Create Account')}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     )
 }

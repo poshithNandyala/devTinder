@@ -1,2 +1,50 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+:root {
+  --color-primary: #e11d48;
+  --color-primary-hover: #be123c;
+  --color-secondary: #9f1239;
+  --color-bg: #0c0a09;
+  --color-bg-card: #1c1917;
+  --color-bg-input: #292524;
+  --color-border: #44403c;
+  --color-text: #fafaf9;
+  --color-text-muted: #a8a29e;
+  --color-text-dim: #78716c;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+}
+
+body {
+  background: linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #0c0a09 100%);
+  color: var(--color-text);
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c1917;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e11d48;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #be123c;
+}
+
+::selection {
+  background: #e11d48;
+  color: white;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-dim);
+}

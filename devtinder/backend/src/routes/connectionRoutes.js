@@ -43,7 +43,7 @@ router.post("/send/:status/:id", userauth, async (req, res) => {
 
 router.get("/getallrequests", userauth, async (req, res) => {
     try {
-        const requests = await Connection.find({ toId: req.user._id }).populate("fromId", "name age").select("fromId");
+        const requests = await Connection.find({ toId: req.user._id, status: "request" }).populate("fromId", "name age gender photoUrl about skills").select("fromId status");
         //  const updated = requests.map((req) => {
         //     return req.fromId;
         // });
@@ -81,7 +81,7 @@ router.patch("/review/:status/:id", userauth, async (req, res) => {
 
 router.get("/allconnections", userauth, async (req, res) => {
     try {
-        let connections = await Connection.find({ $or: [{ fromId: req.user._id, status: "accepted" }, { toId: req.user._id, status: "accepted" }] }).populate("fromId", "name age gender").populate("toId", "name age gender");
+        let connections = await Connection.find({ $or: [{ fromId: req.user._id, status: "accepted" }, { toId: req.user._id, status: "accepted" }] }).populate("fromId", "name age gender photoUrl about skills college company githubId linkedinId").populate("toId", "name age gender photoUrl about skills college company githubId linkedinId");
 
         let newconnections = connections.map((connection) => {
             if (connection.fromId._id.toString() == req.user._id.toString()) {
