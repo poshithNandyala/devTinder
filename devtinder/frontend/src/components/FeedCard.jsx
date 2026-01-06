@@ -9,7 +9,7 @@ import { removeFeed } from "../utils/slices/feedSlice";
 function FeedCard({ user }) {
   const dispatch = useDispatch();
 
-  const { _id, name, age, gender, photo } = user || {};
+  const { _id, name, age, gender, photoUrl, about, skills, college, company, githubId, linkedinId } = user || {};
 
   const handleStatus = useCallback(
     async (status) => {
@@ -44,10 +44,10 @@ function FeedCard({ user }) {
       "
     >
       {/* Image */}
-      {photo && (
+      {photoUrl && (
         <figure className="border-b border-base-300">
           <img
-            src={photo}
+            src={photoUrl}
             alt={`${name}'s profile`}
             className="h-64 w-full object-cover"
             loading="lazy"
@@ -63,6 +63,32 @@ function FeedCard({ user }) {
         <p className="text-sm text-gray-500 capitalize">
           {gender} • {age} years
         </p>
+
+        {/* About */}
+        {about && <p className="text-sm">{about}</p>}
+
+        {/* Skills */}
+        {skills && skills.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {skills.map((skill, idx) => (
+              <span key={idx} className="badge badge-outline badge-sm">{skill}</span>
+            ))}
+          </div>
+        )}
+
+        {/* College & Company */}
+        {college && <p className="text-xs text-gray-500">🎓 {college}</p>}
+        {company && <p className="text-xs text-gray-500">🏢 {company}</p>}
+
+        {/* Social Links */}
+        <div className="flex gap-2">
+          {githubId && (
+            <a href={`https://github.com/${githubId}`} target="_blank" rel="noopener noreferrer" className="link link-primary text-xs">GitHub</a>
+          )}
+          {linkedinId && (
+            <a href={`https://linkedin.com/in/${linkedinId}`} target="_blank" rel="noopener noreferrer" className="link link-primary text-xs">LinkedIn</a>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="card-actions justify-between mt-4">

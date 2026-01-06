@@ -16,6 +16,13 @@ export default function AuthForm() {
     const [name, setName] = useState('')
     const [gender, setGender] = useState('male')
     const [age, setAge] = useState('')
+    const [about, setAbout] = useState('')
+    const [skills, setSkills] = useState('')
+    const [college, setCollege] = useState('')
+    const [company, setCompany] = useState('')
+    const [githubId, setGithubId] = useState('')
+    const [linkedinId, setLinkedinId] = useState('')
+    const [photo, setPhoto] = useState(null)
 
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
@@ -25,12 +32,28 @@ export default function AuthForm() {
         e.preventDefault()
         setLoading(true)
         try {
-            const payload = isLogin
-                ? { email, password }
-                : { name, email, password, gender, age: age ? Number(age) : undefined }
+            let res;
             const endpoint = isLogin ? '/user/login' : '/user/signup'
 
-            const res = await axios.post(BASE_URL + endpoint, payload, { withCredentials: true })
+            if (isLogin) {
+                res = await axios.post(BASE_URL + endpoint, { email, password }, { withCredentials: true })
+            } else {
+                const formData = new FormData()
+                formData.append('name', name)
+                formData.append('email', email)
+                formData.append('password', password)
+                formData.append('gender', gender)
+                formData.append('age', age)
+                if (about) formData.append('about', about)
+                if (skills) formData.append('skills', skills)
+                if (college) formData.append('college', college)
+                if (company) formData.append('company', company)
+                if (githubId) formData.append('githubId', githubId)
+                if (linkedinId) formData.append('linkedinId', linkedinId)
+                if (photo) formData.append('photo', photo)
+
+                res = await axios.post(BASE_URL + endpoint, formData, { withCredentials: true })
+            }
             // assume API returns user object / token in res.data
             dispatch(login(res.data))
             toast.success(isLogin ? 'Login successful' : 'Signup successful — welcome!')
@@ -74,8 +97,70 @@ export default function AuthForm() {
                                 placeholder="Age"
                                 value={age}
                                 onChange={(e) => setAge(e.target.value)}
-                                min={0}
+                                min={18}
+                                max={100}
                                 required={!isLogin}
+                            />
+
+                            <label className="label mt-2">About</label>
+                            <textarea
+                                className="textarea"
+                                placeholder="Tell us about yourself"
+                                value={about}
+                                onChange={(e) => setAbout(e.target.value)}
+                            />
+
+                            <label className="label mt-2">Skills (comma separated)</label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="e.g. React, Node.js, Python"
+                                value={skills}
+                                onChange={(e) => setSkills(e.target.value)}
+                            />
+
+                            <label className="label mt-2">College</label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="Your college"
+                                value={college}
+                                onChange={(e) => setCollege(e.target.value)}
+                            />
+
+                            <label className="label mt-2">Company</label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="Your company"
+                                value={company}
+                                onChange={(e) => setCompany(e.target.value)}
+                            />
+
+                            <label className="label mt-2">GitHub ID</label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="Your GitHub username"
+                                value={githubId}
+                                onChange={(e) => setGithubId(e.target.value)}
+                            />
+
+                            <label className="label mt-2">LinkedIn ID</label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="Your LinkedIn username"
+                                value={linkedinId}
+                                onChange={(e) => setLinkedinId(e.target.value)}
+                            />
+
+                            <label className="label mt-2">Profile Photo</label>
+                            <input
+                                type="file"
+                                className="file-input"
+                                accept="image/*"
+                                onChange={(e) => setPhoto(e.target.files[0])}
                             />
                         </>
                     )}
