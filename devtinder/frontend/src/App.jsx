@@ -9,6 +9,7 @@ import appStore from "./utils/store"
 import EditProfile from "./components/EditProfile"
 import Connections from "./components/Connections"
 import Requests from "./components/Requests"
+import Preferences from "./components/Preferences"
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Body />} >
               <Route path="/login" element={<Login />} />
+              <Route path="/preferences" element={<Preferences />} />
               <Route path="/profile" element={<Profile />} />
               <Route path='/feed' element={<Feed />} />
               <Route path='/settings' element={<Settings />} />

@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from 'express'
 import { connectDB } from './config/mognoose.js';
 import cookieParser from 'cookie-parser';
@@ -9,7 +11,7 @@ import cors from "cors";
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
 }));
 
@@ -17,7 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 
 
