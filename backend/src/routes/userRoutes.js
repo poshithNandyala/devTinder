@@ -68,7 +68,7 @@ router.post("/login", async (req, res) => {
         }
         const isPasswordValid = await user.comparepassword(password);
         if (!isPasswordValid) {
-            return res.status(400).send("Invalid credentials 1");
+            return res.status(400).send("Invalid credentials");
         }
         const token = user.getJWTToken();
         res.cookie("token", token);
