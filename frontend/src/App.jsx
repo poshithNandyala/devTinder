@@ -10,6 +10,7 @@ import EditProfile from "./components/EditProfile"
 import Connections from "./components/Connections"
 import Requests from "./components/Requests"
 import SentRequests from "./components/SentRequests"
+import Chat from "./components/Chat"
 import Preferences from "./components/Preferences"
 
 
@@ -30,6 +31,7 @@ function App() {
               <Route path="/connections" element={<Connections />} />
               <Route path="/requests" element={<Requests />} />
               <Route path="/sent-requests" element={<SentRequests />} />
+              <Route path="/chat/:userId" element={<Chat />} />
             </Route>
           </Routes>
         </BrowserRouter>

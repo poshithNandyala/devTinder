@@ -51,8 +51,13 @@ router.post("/signup", upload.single("photo"), async (req, res) => {
         });
         await user.save();
         const token = user.getJWTToken();
-        res.cookie("token", token);
-        res.send(user);
+        res.cookie("token", token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.send({ ...user.toObject(), token });
     } catch (err) {
         res.status(500).send("Error creating user " + err.message);
     }
@@ -71,8 +76,13 @@ router.post("/login", async (req, res) => {
             return res.status(400).send("Invalid credentials");
         }
         const token = user.getJWTToken();
-        res.cookie("token", token);
-        res.send(user);
+        res.cookie("token", token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.send({ ...user.toObject(), token });
     } catch (err) {
         res.status(500).send("Error logging in");
     }
@@ -97,7 +107,8 @@ router.get("/profile/:id", userauth, async (req, res) => {
 router.get("/profile", userauth, (req, res) => {
     try {
         const user = req?.user;
-        res.status(200).json(user);
+        const token = user.getJWTToken();
+        res.status(200).json({ ...user.toObject(), token });
     } catch (err) {
         res.status(500).send("Error fetching profile" + err.message);
     }

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { BASE_URL } from '../utils/constants'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
@@ -102,6 +103,16 @@ function Connections() {
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {/* message button - the whole point of matching right? */}
+                <Link
+                  to={`/chat/${user._id}`}
+                  className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500/20 to-pink-500/20 flex items-center justify-center text-rose-400 hover:from-rose-500/30 hover:to-pink-500/30 hover:text-rose-300 hover:scale-110 transition-all"
+                  title="Send message"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </Link>
                 {user.githubId && (
                   <a
                     href={`https://github.com/${user.githubId}`}

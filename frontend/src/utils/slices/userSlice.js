@@ -6,9 +6,14 @@ const userSlice = createSlice({
     initialState: null,
     reducers: {
         login: (state, action) => {
+            // store token in localStorage for socket auth
+            if (action.payload?.token) {
+                localStorage.setItem('token', action.payload.token);
+            }
             return action.payload;
         },
         logout: () => {
+            localStorage.removeItem('token');
             return null;
         },
     },
