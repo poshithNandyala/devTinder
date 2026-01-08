@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
-import { BASE_URL } from "./constants";
+import { SOCKET_BASE_URL } from "./constants";
+
 
 let socket = null;
 
@@ -28,13 +29,14 @@ export const connectSocket = (token) => {
         console.error("DEBUG: No token available for socket");
         return null;
     }
-    
+
     console.log("DEBUG: Connecting socket with token...");
 
-    socket = io(BASE_URL, {
+    socket = io(SOCKET_BASE_URL, {
+        path: "/socket.io",
         auth: { token },
+        transports: ["websocket"],
         withCredentials: true,
-        transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000
