@@ -172,7 +172,7 @@ router.get("/feed", userauth, async (req, res) => {
         const loggedInUser = req.user;
 
         const page = parseInt(req.query.page) || 1;
-        let limit = parseInt(req.query.limit) || 10;
+        let limit = parseInt(req.query.limit) || 100;
         limit = Math.min(limit, 50);
         const skip = (page - 1) * limit;
 

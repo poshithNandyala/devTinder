@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../utils/slices/userSlice'
+// import { disconnectSocket } from '../utils/socket'
 import axios from 'axios'
 import { BASE_URL } from '../utils/constants'
 import { Link, useNavigate, useLocation } from 'react-router'
@@ -28,6 +29,7 @@ function Navbar() {
   const handleLogout = async () => {
     setLoggingOut(true)
     try {
+      // disconnectSocket() // close socket on logout
       await axios.post(BASE_URL + '/user/logout', {}, { withCredentials: true })
       dispatch(logout())
       toast.success('Signed out')
@@ -46,34 +48,42 @@ function Navbar() {
   return (
     <nav className="bg-stone-950/80 backdrop-blur-md border-b border-stone-800/30 sticky top-0 z-50 px-6 py-3">
       <div className="flex items-center justify-between">
-        <Link to="/feed" className="text-xl font-light tracking-widest text-stone-100 hover:text-rose-500 transition-colors">
-          dev<span className="text-rose-500 font-normal">Tinder</span>
+        <Link to="/feed" className="flex items-center gap-2">
+          <img
+            src="/vite.svg"
+            alt="devTinder logo"
+             className="w-12 h-12 object-contain"
+          />
+          <span className="text-xl tracking-widest text-stone-100">
+            dev<span className="text-rose-500">Tinder</span>
+          </span>
         </Link>
+
 
         {user && (
           <div className="flex items-center gap-6">
             {/* Navigation Links - Desktop */}
             <div className="hidden md:flex items-center gap-1">
-              <Link 
-                to="/feed" 
+              <Link
+                to="/feed"
                 className={`px-4 py-2 text-sm tracking-wide transition-colors ${isActive('/feed') ? 'text-rose-500' : 'text-stone-400 hover:text-stone-200'}`}
               >
                 Discover
               </Link>
-              <Link 
-                to="/connections" 
+              <Link
+                to="/connections"
                 className={`px-4 py-2 text-sm tracking-wide transition-colors ${isActive('/connections') ? 'text-rose-500' : 'text-stone-400 hover:text-stone-200'}`}
               >
                 Connections
               </Link>
-              <Link 
-                to="/requests" 
+              <Link
+                to="/requests"
                 className={`px-4 py-2 text-sm tracking-wide transition-colors ${isActive('/requests') ? 'text-rose-500' : 'text-stone-400 hover:text-stone-200'}`}
               >
                 Requests
               </Link>
-              <Link 
-                to="/sent-requests" 
+              <Link
+                to="/sent-requests"
                 className={`px-4 py-2 text-sm tracking-wide transition-colors ${isActive('/sent-requests') ? 'text-rose-500' : 'text-stone-400 hover:text-stone-200'}`}
               >
                 Sent
@@ -82,7 +92,7 @@ function Navbar() {
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="w-9 h-9 rounded-full ring-1 ring-rose-500/30 ring-offset-1 ring-offset-stone-950 overflow-hidden"
               >
@@ -92,7 +102,7 @@ function Navbar() {
                   className="w-full h-full object-cover"
                 />
               </button>
-              
+
               {dropdownOpen && (
                 <div className="absolute right-0 mt-3 w-56 p-3 bg-stone-900/95 backdrop-blur-md rounded-xl border border-stone-700/50 shadow-xl">
                   <div className="px-3 py-2 mb-2">
@@ -100,51 +110,51 @@ function Navbar() {
                     <p className="text-xs text-stone-500">{user.email}</p>
                   </div>
                   <div className="h-px bg-stone-700/30 my-2"></div>
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     onClick={() => setDropdownOpen(false)}
                     className="block px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Profile
                   </Link>
-                  <Link 
-                    to="/feed" 
+                  <Link
+                    to="/feed"
                     onClick={() => setDropdownOpen(false)}
                     className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Discover
                   </Link>
-                  <Link 
-                    to="/connections" 
+                  <Link
+                    to="/connections"
                     onClick={() => setDropdownOpen(false)}
                     className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Connections
                   </Link>
-                  <Link 
-                    to="/requests" 
+                  <Link
+                    to="/requests"
                     onClick={() => setDropdownOpen(false)}
                     className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Requests
                   </Link>
-                  <Link 
-                    to="/sent-requests" 
+                  <Link
+                    to="/sent-requests"
                     onClick={() => setDropdownOpen(false)}
                     className="block md:hidden px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Sent Requests
                   </Link>
-                  <Link 
-                    to="/settings" 
+                  <Link
+                    to="/settings"
                     onClick={() => setDropdownOpen(false)}
                     className="block px-3 py-2 text-sm text-stone-400 hover:text-stone-100 rounded-lg hover:bg-stone-800/50 transition-colors"
                   >
                     Settings
                   </Link>
                   <div className="h-px bg-stone-700/30 my-2"></div>
-                  <button 
-                    onClick={handleLogout} 
+                  <button
+                    onClick={handleLogout}
                     disabled={loggingOut}
                     className="w-full text-left px-3 py-2 text-sm text-stone-500 hover:text-red-400 rounded-lg hover:bg-stone-800/50 transition-colors flex items-center gap-2"
                   >
