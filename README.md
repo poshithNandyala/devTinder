@@ -1,7 +1,7 @@
 # 🚀 DevTinder - Tinder for Developers
 
 <div align="center">
-  <img src="../devTinder/frontend/public/vite.svg" alt="DevTinder Banner" height="100"/>
+  <img src="./assests/vite.svg" alt="DevTinder Banner" height="100"/>
   <br>
   <br>
   
