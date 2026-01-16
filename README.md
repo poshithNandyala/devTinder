@@ -103,7 +103,7 @@ Follow these instructions to get the project up and running on your local machin
 
 | Login Screen | Feed | Chat |
 |:---:|:---:|:---:|
-| ![Login](https://via.placeholder.com/300x500?text=Login) | ![Feed](https://via.placeholder.com/300x500?text=Feed) | ![Chat](https://via.placeholder.com/300x500?text=Chat) |
+| ![Login](./assests/login.png) | ![Feed](./assests/feed.png) | ![Chat](./assests/chat.png) |
 
 ---
 
