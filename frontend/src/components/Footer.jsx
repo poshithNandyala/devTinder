@@ -6,7 +6,10 @@ function Footer() {
       <div className="container mx-auto px-4">
         <p className="text-center text-xs tracking-widest text-stone-600">
           <span className="font-medium">
-            dev<span className="text-rose-600/70">Tinder</span>
+            dev
+            <span className="text-rose-600/70 transition-colors duration-300 hover:text-rose-500">
+              Tinder
+            </span>
           </span>
           <span className="mx-2">·</span>
           <span>{currentYear}</span>
